@@ -1,0 +1,22 @@
+{
+    "name": "enzo/composer-blog",
+    "require": {
+        "vlucas/phpdotenv": "^5.2",
+        "nesbot/carbon": "^2.41",
+        "guzzlehttp/guzzle": "^7.0"
+    },
+    "scripts": {
+        "serve": "php -S 127.0.0.1:8080 -t public/"
+    },
+    "autoload":{
+        "files":[
+            "app/models/model.php",
+            "app/models/post.php",
+            "app/helpers/view.php",
+            "app/controllers/post.php"
+        ]
+    },
+    "require-dev": {
+        "filp/whoops": "^2.9"
+    }
+}
