@@ -1,9 +1,19 @@
 <?php
 
+use Respect\Validation\Validator as v;
+use Respect\Validation\Exceptions\NestedValidationException;
+
+function postHome()
+{
+    $posts = getAllPosts();
+    view('posts/blog', compact('posts'));
+}
+
+
 function postIndex()
 {
     $posts = getAllPosts();
-    view('posts/index.php', compact('posts'));
+    view('posts/index', compact('posts'));
 }
 
 function postShow($id)
@@ -22,16 +32,17 @@ function postShow($id)
         return;
     }
 
-    view('posts/show.php', compact('post'));
+    view('posts/show', compact('post'));
 }
 
 function postCreate()
 {
     $_SESSION['form_action'] = "create";
-    view('posts/form.php', []);
+    view('posts/form', []);
 }
 function postStore()
 {
+
     if(!isset($_POST['title']) or empty($_POST['title'])
     or !isset($_POST['body']) or empty($_POST['body'])){
         // Renvoyer sur le formulaire avec les old_inputs en session
@@ -52,6 +63,20 @@ function postStore()
         exit();
     }
     else{
+        $contentValidator = v::attribute('title', v::stringType()->length(1, 255)) // car varchar de 255 en db
+                  ->attribute('body', v::stringType()->length(1, null));
+
+        try {
+            $contentValidator->assert((object) $_POST);
+        } catch (NestedValidationException $exception) {
+            $_SESSION['alert'] = [
+                'success' => false,
+                'content' => ["Erreur lors de la validation des données."]
+            ];
+            $_SESSION['old_inputs'] = $_POST;
+            header('Location:/articles/create');
+            exit();
+        }
         createPost($_POST);
         $_SESSION['alert'] = [
             'success' => true,
@@ -75,7 +100,7 @@ function postEdit($id)
         return;
     }
     $_SESSION['form_action'] = "edit";
-    view('posts/form.php', compact('post'));
+    view('posts/form', compact('post','id'));
 }
 function postUpdate($id)
 {
@@ -95,10 +120,23 @@ function postUpdate($id)
             $_SESSION['alert']['content'][] = "Le corps est obligatoire.";
         }
         $_SESSION['alert']['success'] = false;
-        header('Location:/articles/edit?id=' . $_GET['id']);
+        header('Location:/articles/' . $id . '/edit');
         exit();
     }
     else{
+        $contentValidator = v::attribute('title', v::stringType()->length(1, 255)) // car varchar de 255 en db
+                    ->attribute('body', v::stringType()->length(1, null));
+        try {
+        $contentValidator->assert((object) $_POST);
+        } catch (NestedValidationException $exception) {
+        $_SESSION['alert'] = [
+            'success' => false,
+            'content' => ["Erreur lors de la validation des données."]
+        ];
+        $_SESSION['old_inputs'] = $_POST;
+        header('Location:/articles/' . $id . '/edit');
+        exit();
+        }
         updatePostById($id, $_POST);
         $_SESSION['alert'] = [
             'success' => true,
@@ -126,6 +164,37 @@ function postDestroy($id)
         'success' => true,
         'content' => ["L'article a été correctement supprimé!"]
     ];
+    header('Location:/articles');
+    exit();
+}
+
+function postFaker($nb)
+{
+    $continue = true;
+    for ($i=0; $i < $nb; $i++) { 
+        $faker = Faker\Factory::create();
+        $fakeData = [
+            'title' => $faker->name,
+            'body' => $faker->text
+        ];
+        $result = createPost($fakeData);
+        if(!$result){
+            !$continue;
+            return;
+        }
+    }
+    if($continue){
+        $_SESSION['alert'] = [
+            'success' => true,
+            'content' => ["Les articles ont été correctement ajoutés!"]
+        ];
+    }
+    else{
+        $_SESSION['alert'] = [
+            'success' => false,
+            'content' => ["Erreur lors de l'insertion!"]
+        ];
+    }
     header('Location:/articles');
     exit();
 }

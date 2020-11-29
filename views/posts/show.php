@@ -1,7 +1,7 @@
-<?php $title = "My blog"; ?>
+<?php $this->layout('layouts/default', ['title' => $post->title]) ?>
 
-<?php ob_start(); ?>
-<button class="btn btn-primary m-4"><a href="/articles">Retour à l'accueil</a></button>
+
+<button class="btn btn-primary m-4"><a href="/">Retour à l'accueil</a></button>
 
 <div class="card">
     <div class="card-body text-center">
@@ -10,6 +10,3 @@
         <p class="card-text"><?= $post->body ?></p>
     </div>
 </div>
-
-<?php $content = ob_get_clean(); ?>
-<?php require __DIR__ . '/../layouts/default.php'; ?>

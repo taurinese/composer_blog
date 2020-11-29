@@ -18,10 +18,7 @@
 <body>
     <nav class="navbar navbar-light bg-light mx-auto">
         <h1 class="mx-auto"><a href="/">My blog</a></h1>
-        <div class="mx-auto">
-            <button class="btn btn-primary mx-auto"><a href="/articles/create">Ajouter un article</a></button>
-            <button class="btn btn-info mx-auto"><a href="/articles">Admin</a></button>
-        </div>
+        <button class="btn btn-info mx-auto"><a href="/articles">Admin</a></button>
     </nav>
     <?php if(isset($_SESSION['alert']['content'])): ?>
         <?php foreach($_SESSION['alert']['content'] as $alert): ?>
